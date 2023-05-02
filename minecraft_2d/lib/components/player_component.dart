@@ -5,25 +5,38 @@ import 'package:minecraft_2d/global/game_reference.dart';
 import 'package:minecraft_2d/global/player_data.dart';
 
 class Player extends SpriteAnimationComponent {
-  static const double _speed = 5;
+  static const double _speed = 3;
   static bool _isFacingRight = true;
+  static final Vector2 _playerDimensions = Vector2.all(60);
+  static const _stepTimeIdle = 0.4;
+  static const double _stepTimeWalking = 0.1;
+
+  late SpriteSheet playerWalkingSpriteSheet;
+  late SpriteSheet playerIdleSpriteSheet;
+
+  late SpriteAnimation playerWalkingAnimation = playerWalkingSpriteSheet
+      .createAnimation(row: 0, stepTime: _stepTimeWalking);
+
+  late SpriteAnimation playerIdleAnimation =
+      playerIdleSpriteSheet.createAnimation(row: 0, stepTime: _stepTimeIdle);
+
   @override
   Future<void> onLoad() async {
     super.onLoad();
-
-    SpriteSheet playSpriteSheet = SpriteSheet(
+    playerWalkingSpriteSheet = SpriteSheet(
       image: await Flame.images
           .load('sprite_sheets/player/player_walking_sprite_sheet.png'),
-      // srcSize: Vector2(60, 60),
-      srcSize: Vector2.all(60),
+      srcSize: _playerDimensions,
     );
 
-    animation = playSpriteSheet.createAnimation(
-      row: 0,
-      stepTime: 0.1,
+    playerIdleSpriteSheet = SpriteSheet(
+      image: await Flame.images
+          .load('sprite_sheets/player/player_idle_sprite_sheet.png'),
+      srcSize: _playerDimensions,
     );
+
+    animation = playerIdleAnimation;
     position = Vector2(100, 500);
-    size = Vector2(100, 100);
   }
 
   @override
@@ -43,6 +56,7 @@ class Player extends SpriteAnimationComponent {
         flipHorizontallyAroundCenter();
         _isFacingRight = false;
       }
+      animation = playerWalkingAnimation;
     }
 
     // Moving right
@@ -52,6 +66,12 @@ class Player extends SpriteAnimationComponent {
         flipHorizontallyAroundCenter();
         _isFacingRight = true;
       }
+      animation = playerWalkingAnimation;
+    }
+
+    // Idle
+    if (gameWalkingReference == ComponentMotionState.idle) {
+      animation = playerIdleAnimation;
     }
   }
 }
