@@ -11,6 +11,6 @@ In this game we will need a stack of 3 layers:
 **NOTES:**
 **This tutotial is from Create a Minecraft game with Flutter + Flame ministred by [Aadhi Arun](https://github.com/AirAdmirer) in [Udemy](https://www.udemy.com/) platform**
 
-**This resume is only for study, all content an intelectual property is from the author [Aadhi Arun](https://github.com/AirAdmirer)**
+**This summary is only for study, all content are intelectual property of the author [Aadhi Arun](https://github.com/AirAdmirer)**
 
 $\Leftarrow$ [Voltar](README.md) 

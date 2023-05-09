@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:minecraft_2d/global/game_reference.dart';
 import 'package:minecraft_2d/global/player_data.dart';
 
@@ -33,7 +34,10 @@ class _ControllerButtonWidgetState extends State<ControllerButtonWidget> {
         onTapUp: (_) {
           setState(() {
             isPressed = false;
-            GameReference.instance.gameReference.worldData.playerData
+            Get.find<GameReference>()
+                .gameReference
+                .worldData
+                .playerData
                 .componentMotionState = ComponentMotionState.idle;
           });
         },

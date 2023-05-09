@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:minecraft_2d/global/player_data.dart';
 import 'package:minecraft_2d/widgets/controller_button_widget.dart';
-
 import '../global/game_reference.dart';
 
 class ControllerWidget extends StatelessWidget {

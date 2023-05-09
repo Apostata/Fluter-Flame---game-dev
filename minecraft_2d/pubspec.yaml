@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flame: ^1.7.3
   get: ^4.6.5
+  fast_noise: ^1.0.1
 
 dev_dependencies:
   flutter_test:
