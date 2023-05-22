@@ -17,7 +17,8 @@ class GameMethods {
   }
 
   Vector2 get blockSizes {
-    return Vector2.all(getScreenSize().width / chunkWidth);
+    // return Vector2.all(getScreenSize().width / chunkWidth);
+    return Vector2.all(30);
   }
 
   Size getScreenSize() {
@@ -29,7 +30,11 @@ class GameMethods {
   }
 
   int get notGroundArea {
-    return (chunkHeight * 0.4).toInt();
+    return (chunkHeight * 0.2).toInt();
+  }
+
+  int get maxSecondarySoilHeight {
+    return notGroundArea + 6;
   }
 
   Future<SpriteSheet> getBlockSpriteSheet() async {

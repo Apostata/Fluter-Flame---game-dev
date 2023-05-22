@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:fast_noise/fast_noise.dart';
 import 'package:minecraft_2d/resources/blocks.dart';
@@ -10,7 +10,10 @@ class ChunkGenerationMethods {
     return ChunkGenerationMethods();
   }
 
-  List<List<BlocksEnum?>> generateNullChumk() {
+  ///
+  /// Generates a null chunk (piece of soil) with the given width and height, filled with null
+  ///
+  List<List<BlocksEnum?>> generateNullChunk() {
     return List.generate(
       chunkHeight,
       (index) => List.generate(
@@ -20,45 +23,84 @@ class ChunkGenerationMethods {
     );
   }
 
+  ///
+  /// Generates the sreen chunk with Perlin noise, first layer with grass, second layer with dirt and the rest with stone
+  ///
   List<List<BlocksEnum?>> generateChunk() {
-    List<List<BlocksEnum?>> chunk = generateNullChumk();
+    List<List<BlocksEnum?>> chunk = generateNullChunk();
 
     List<List<double>> rawNoise = noise2(
       chunkWidth,
       1, //height 1, only one dimension of noise
       noiseType: NoiseType.Perlin,
       frequency: 0.05,
-      seed: 98078769, //aparentemente o seed é um id unico de noises
+      seed: 98765493, //aparentemente o seed é um id unico de noises
     );
 
     final List<int> yValues = getYValuesFromRawNoise(rawNoise);
-
-    yValues.asMap().forEach((idx, value) {
-      // floor
-      // as the ground of our game is in the index 5 we will add it to the value
-      final notGroundArea = GameMethods.instance.notGroundArea;
-      chunk[value + notGroundArea][idx] = BlocksEnum.grass;
-    });
-
-    // chunk.asMap().forEach((int indexOfRow, rowOfBlocks) {
-    //   if (indexOfRow == 5) {
-    //     rowOfBlocks.asMap().forEach((index, block) {
-    //       chunk[5][index] = BlocksEnum.grass;
-    //     });
-    //   }
-    //   if (indexOfRow >= 6) {
-    //     rowOfBlocks.asMap().forEach((index, block) {
-    //       chunk[indexOfRow][index] = BlocksEnum.dirt;
-    //     });
-    //   }
-    // });
+    chunk = generatePrimarySoil(chunk, yValues, BlocksEnum.grass);
+    chunk = generateSecondarySoil(chunk, yValues, BlocksEnum.dirt);
+    chunk = generateStoneSoil(chunk);
     return chunk;
   }
 
+  ///
+  /// Generates the primary soil (grass) with the given yValues and blockEnum
+  ///
+  List<List<BlocksEnum?>> generatePrimarySoil(
+      List<List<BlocksEnum?>> chunk, List<int> yValues, BlocksEnum block) {
+    yValues.asMap().forEach((int idx, value) {
+      chunk[value][idx] = block;
+    });
+
+    return chunk;
+  }
+
+  ///
+  /// Generates the secondary soil (dirt) with the given yValues and blockEnum
+  ///
+  List<List<BlocksEnum?>> generateSecondarySoil(
+      List<List<BlocksEnum?>> chunk, List<int> yValues, BlocksEnum block) {
+    final int freeAreaMax = GameMethods.instance.maxSecondarySoilHeight;
+    yValues.asMap().forEach((int idx, value) {
+      for (int i = value + 1; i <= freeAreaMax; i++) {
+        chunk[i][idx] = block;
+      }
+    });
+
+    return chunk;
+  }
+
+  ///
+  /// Generates the stone soil with the given chunk
+  ///
+  List<List<BlocksEnum?>> generateStoneSoil(List<List<BlocksEnum?>> chunk) {
+    final int freeArea = GameMethods.instance.maxSecondarySoilHeight;
+    final int freeAreaMaxPlusOne = freeArea + 1;
+    for (int width = 0; width < chunkWidth; width++) {
+      for (int position = freeAreaMaxPlusOne;
+          position < chunk.length;
+          position++) {
+        chunk[position][width] = BlocksEnum.stone;
+      }
+    }
+
+    final int x1 = Random().nextInt(chunkWidth ~/ 2);
+    final int x2 = x1 + Random().nextInt(chunkWidth ~/ 2);
+    chunk[freeArea].fillRange(x1, x2, BlocksEnum.stone);
+
+    return chunk;
+  }
+
+  ///
+  /// Generates the X nad Y values from the [rawNoise] list
+  ///
   getYValuesFromRawNoise(List<List<double>> rawNoise) {
     List<int> yValues = [];
+    final int freeArea = GameMethods.instance.notGroundArea;
+
     yValues = rawNoise.map((List<double> value) {
-      return (value[0] * 10).toInt().abs();
+      return (value[0] * 10).toInt().abs() + freeArea;
     }).toList();
     return yValues;
   }

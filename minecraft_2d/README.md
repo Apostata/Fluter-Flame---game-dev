@@ -610,10 +610,155 @@ class Player extends SpriteAnimationComponent {
 
 ### Make Procedural terrain generation
 Lets create a randon terrain with Procedural terrain generation concept, using the `fast_noise` package
-`flutter pub add fast_noise` 
+`flutter pub add fast_noise`  using the `Perlin noise` (detailed explaned by [Khan academy]('https://pt.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-noise/a/perlin-noise'))
 
-// TODO: continuar daqui
+lets create a constants file `utils/constants.dart` whith the chunk values:
+```dart
+const int chunkWidth = 16; //16 columns of blocks
+const int chunkHeight = 25; //25 rows of blocks
 
+```
+
+now lets create a file `utils/chunk_generation_methods.dart`:
+```dart	
+class ChunkGenerationMethods {
+  static ChunkGenerationMethods get instance {
+    return ChunkGenerationMethods();
+  }
+
+  ///
+  /// Generates a null chunk (piece of soil) with the given width and height, filled with null
+  ///
+  List<List<BlocksEnum?>> generateNullChunk() {
+    return List.generate(
+      chunkHeight,
+      (index) => List.generate(
+        chunkWidth,
+        (idx) => null,
+      ),
+    );
+  }
+
+  ///
+  /// Generates the sreen chunk with Perlin noise, first layer with grass, second layer with dirt and the rest with stone
+  ///
+  List<List<BlocksEnum?>> generateChunk() {
+    List<List<BlocksEnum?>> chunk = generateNullChunk();
+
+    List<List<double>> rawNoise = noise2(
+      chunkWidth,
+      1, //height 1, only one dimension of noise
+      noiseType: NoiseType.Perlin,
+      frequency: 0.05,
+      seed: 98765493, //aparentemente o seed é um id unico de noises
+    );
+
+    final List<int> yValues = getYValuesFromRawNoise(rawNoise);
+    chunk = generatePrimarySoil(chunk, yValues, BlocksEnum.grass);
+    chunk = generateSecondarySoil(chunk, yValues, BlocksEnum.dirt);
+    chunk = generateStoneSoil(chunk);
+    return chunk;
+  }
+
+  ///
+  /// Generates the primary soil (grass) with the given yValues and blockEnum
+  ///
+  List<List<BlocksEnum?>> generatePrimarySoil(
+      List<List<BlocksEnum?>> chunk, List<int> yValues, BlocksEnum block) {
+    yValues.asMap().forEach((int idx, value) {
+      chunk[value][idx] = block;
+    });
+
+    return chunk;
+  }
+
+  ///
+  /// Generates the secondary soil (dirt) with the given yValues and blockEnum
+  ///
+  List<List<BlocksEnum?>> generateSecondarySoil(
+      List<List<BlocksEnum?>> chunk, List<int> yValues, BlocksEnum block) {
+    final int freeAreaMax = GameMethods.instance.maxSecondarySoilHeight;
+    yValues.asMap().forEach((int idx, value) {
+      for (int i = value + 1; i <= freeAreaMax; i++) {
+        chunk[i][idx] = block;
+      }
+    });
+
+    return chunk;
+  }
+
+  ///
+  /// Generates the stone soil with the given chunk
+  ///
+  List<List<BlocksEnum?>> generateStoneSoil(List<List<BlocksEnum?>> chunk) {
+    final int freeArea = GameMethods.instance.maxSecondarySoilHeight;
+    final int freeAreaMaxPlusOne = freeArea + 1;
+    for (int width = 0; width < chunkWidth; width++) {
+      for (int position = freeAreaMaxPlusOne;
+          position < chunk.length;
+          position++) {
+        chunk[position][width] = BlocksEnum.stone;
+      }
+    }
+
+    final int x1 = Random().nextInt(chunkWidth ~/ 2);
+    final int x2 = x1 + Random().nextInt(chunkWidth ~/ 2);
+    chunk[freeArea].fillRange(x1, x2, BlocksEnum.stone);
+
+    return chunk;
+  }
+
+  ///
+  /// Generates the X nad Y values from the [rawNoise] list
+  ///
+  getYValuesFromRawNoise(List<List<double>> rawNoise) {
+    List<int> yValues = [];
+    final int freeArea = GameMethods.instance.notGroundArea;
+
+    yValues = rawNoise.map((List<double> value) {
+      return (value[0] * 10).toInt().abs() + freeArea;
+    }).toList();
+    return yValues;
+  }
+}
+```
+
+changing the main game to render the chunk:
+```dart
+class MainGame extends FlameGame {
+  final WorldData worldData;
+  final GameReference globalGameReference = Get.put(GameReference());
+  Player playerComponent = Player();
+
+  MainGame({required this.worldData}) {
+    globalGameReference.gameReference = this;
+  }
+
+  @override
+  FutureOr<void> onLoad() {
+    super.onLoad();
+    camera.followComponent(playerComponent);
+    add(playerComponent);
+    renderChunk(ChunkGenerationMethods.instance.generateChunk());
+  }
+
+  void renderChunk(List<List<BlocksEnum?>> chunk) {
+    chunk.asMap().forEach((int yIdx, rowOfBlocks) {
+      rowOfBlocks.asMap().forEach((int xIdx, block) {
+        if (block != null) {
+          add(
+            BlockComponent(
+              block: block,
+              blockIndex: Vector2(xIdx.toDouble(), yIdx.toDouble()),
+            ),
+          );
+        }
+      });
+    });
+  }
+}
+
+```
 
 **NOTES:**
 **This tutotial is from Create a Minecraft game with Flutter + Flame ministred by [Aadhi Arun](https://github.com/AirAdmirer) in [Udemy](https://www.udemy.com/) platform**
