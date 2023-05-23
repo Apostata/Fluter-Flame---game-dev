@@ -65,10 +65,10 @@ class MainGame extends FlameGame {
         if (block != null) {
           add(
             BlockComponent(
-              block: block,
-              blockIndex: Vector2(
-                  (chunkWidth * chunkIdx) + xIdx.toDouble(), yIdx.toDouble()),
-            ),
+                block: block,
+                blockIndex: Vector2(
+                    (chunkWidth * chunkIdx) + xIdx.toDouble(), yIdx.toDouble()),
+                chunkIdx: chunkIdx),
           );
         }
       });
