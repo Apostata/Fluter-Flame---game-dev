@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:fast_noise/fast_noise.dart';
+import 'package:minecraft_2d/global/game_reference.dart';
+import 'package:minecraft_2d/resources/biomes.dart';
 import 'package:minecraft_2d/resources/blocks.dart';
 import 'package:minecraft_2d/utils/constants.dart';
 import 'package:minecraft_2d/utils/game_methods.dart';
@@ -26,20 +28,31 @@ class ChunkGenerationMethods {
   ///
   /// Generates the sreen chunk with Perlin noise, first layer with grass, second layer with dirt and the rest with stone
   ///
-  List<List<BlocksEnum?>> generateChunk() {
+  List<List<BlocksEnum?>> generateChunk(int chunkIdx) {
     List<List<BlocksEnum?>> chunk = generateNullChunk();
+    int seed = GameReference.instance.gameReference.worldData.seed;
+    BiomesEnum biomeType =
+        Random().nextBool() ? BiomesEnum.desert : BiomesEnum.birchForest;
+    BiomeData biome = BiomeData.getBiomeDataFor(biomeType);
 
+    final isLeftWorldChunk = chunkIdx < 0;
+    seed = isLeftWorldChunk ? seed : (seed + 1);
     List<List<double>> rawNoise = noise2(
-      chunkWidth,
+      chunkWidth * (isLeftWorldChunk ? chunkIdx.abs() : (chunkIdx + 1)),
       1, //height 1, only one dimension of noise
       noiseType: NoiseType.Perlin,
       frequency: 0.05,
-      seed: 98765493, //aparentemente o seed é um id unico de noises
+      seed: seed, //aparentemente o seed é um id unico de noises
     );
 
     final List<int> yValues = getYValuesFromRawNoise(rawNoise);
-    chunk = generatePrimarySoil(chunk, yValues, BlocksEnum.grass);
-    chunk = generateSecondarySoil(chunk, yValues, BlocksEnum.dirt);
+    yValues.removeRange(
+        0, chunkWidth * (isLeftWorldChunk ? (chunkIdx.abs() - 1) : chunkIdx));
+    // get the yValues from the rawNoise and remove the chunkWidth * chunkIdx values (aways getting the last chunkWidth values)
+    // in others words, aways getting the yValues only for the current chunk
+
+    chunk = generatePrimarySoil(chunk, yValues, biome.primarySoil);
+    chunk = generateSecondarySoil(chunk, yValues, biome.secondarySoil);
     chunk = generateStoneSoil(chunk);
     return chunk;
   }

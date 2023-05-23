@@ -1,7 +1,9 @@
 import 'package:flame/components.dart';
+import 'package:flame/extensions.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
+import 'package:minecraft_2d/global/game_reference.dart';
 import 'package:minecraft_2d/resources/blocks.dart';
 import 'package:minecraft_2d/utils/constants.dart';
 
@@ -37,6 +39,18 @@ class GameMethods {
     return notGroundArea + 6;
   }
 
+  double get playerXposition {
+    final playerPosition =
+        GameReference.instance.gameReference.playerComponent.position;
+    return playerPosition.x / blockSizes.x;
+  }
+
+  int get currentChunk {
+    final isLeftWorldChunk = playerXposition < 0;
+    final posfix = isLeftWorldChunk ? -1 : 0;
+    return (playerXposition ~/ chunkWidth) + posfix;
+  }
+
   Future<SpriteSheet> getBlockSpriteSheet() async {
     return SpriteSheet(
       image: await Flame.images.load(
@@ -52,5 +66,42 @@ class GameMethods {
     SpriteSheet spriteSheet = await getBlockSpriteSheet();
     return spriteSheet.getSprite(0, block.index);
   }
-  // get the sprite with the given enumblock passed
+
+  void addWorldChunk(List<List<BlocksEnum?>> chunk, bool isLeftWorldChunk) {
+    if (isLeftWorldChunk) {
+      final leftWorldChunks =
+          GameReference.instance.gameReference.worldData.leftWorldChunks;
+
+      chunk.asMap().forEach((yIdx, row) {
+        leftWorldChunks[yIdx].addAll(row);
+      });
+    } else {
+      final rightWorldChunks =
+          GameReference.instance.gameReference.worldData.rightWorldChunks;
+
+      chunk.asMap().forEach((yIdx, row) {
+        rightWorldChunks[yIdx].addAll(row);
+      });
+    }
+  }
+
+  List<List<BlocksEnum?>> getIndividualChunk(int chunkIdx) {
+    final isLeftWorldChunk = chunkIdx < 0;
+
+    final List<List<BlocksEnum?>> chunk = [];
+    final worldChunks = !isLeftWorldChunk
+        ? GameReference.instance.gameReference.worldData.rightWorldChunks
+        : GameReference.instance.gameReference.worldData.leftWorldChunks;
+    worldChunks.asMap().forEach((yIdx, rowOfCombinedBlocks) {
+      List<BlocksEnum?> currChunk = rowOfCombinedBlocks.sublist(
+        chunkWidth * (isLeftWorldChunk ? (chunkIdx.abs() - 1) : chunkIdx),
+        chunkWidth * (isLeftWorldChunk ? (chunkIdx.abs()) : (chunkIdx + 1)),
+      );
+      if (isLeftWorldChunk) currChunk = currChunk.reversed.toList();
+      // to the noise be generated in the right way when the chunk index is negative
+
+      chunk.add(currChunk);
+    });
+    return chunk;
+  }
 }

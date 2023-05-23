@@ -16,7 +16,7 @@ class GameLayout extends StatelessWidget {
       children: [
         //the game logic
         GameWidget(
-          game: MainGame(worldData: WorldData()),
+          game: MainGame(worldData: WorldData(seed: 98765493)),
         ),
         //HUDs
         const ControllerWidget()
