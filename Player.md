@@ -34,7 +34,7 @@ first we need to create an `onLoad` function that will define the sprite sheet u
 
 An SpriteSheet is a grided image with diferents positions for the player to be animated.
 
-![image](assets/images/sprite_sheets/player/player_idle_sprite_sheet.png)  
+![image](minecraft_2d/assets/images/sprite_sheets/player/player_idle_sprite_sheet.png)  
 
 in the animation property of the load function of the `SpriteAnimationComponent` we must define the dimension of the grid (60px in the case) and the row, that is the row in the grided image.
 then we create a `update` functions that will control the possition of the player on screen in a update
@@ -148,4 +148,4 @@ class Player extends SpriteAnimationComponent {
 }
 
 ```
-$ \gets $ [Back](README.md)
+$\leftarrow$ [Back](README.md)

@@ -28,9 +28,11 @@ void main() {
   runApp(GameWidget(game: MainGame()));
 }
 ```
+$\rightarrow$ For more info about [Flame Wigdets](FlameWidgets.md.md):
+
 
 ## Create the game
-Accordly to de [Game Design document](GameDesign.md):
+$\rightarrow$ Accordly to de [Game Design document](GameDesign.md):
 we should change `main.dart` to :
 ```dart
 void main() {
@@ -430,7 +432,7 @@ class GameLayout extends StatelessWidget {
 
 ### Block Sprite
 The block Sprite is a single row spriteSheet, and now we will use the `getBlockSpriteSheet()` created previosly.
-![image](assets/images/sprite_sheets/blocks/block_sprite_sheet.png)
+![image](minecraft_2d/assets/images/sprite_sheets/blocks/block_sprite_sheet.png)
 Now we create the `BlockComponent` that is the responsible for render each block of material:
 
 ```dart
@@ -460,10 +462,10 @@ class BlockComponent extends SpriteComponent {
 ```
 the `onGameResize` method makes the environment resposive. 
 
-$ \to $ [Player creation and movement](Player.md)
-$ \to $ [Terrain creation and biomes](Terrain.md)
-$ \to $ [Structures](Structures.md) 
-
+$\rightarrow$ [Player creation and movement](Player.md)  \
+$\rightarrow$ [Terrain creation and biomes](Terrain.md)  \
+$\rightarrow$ [Structures](Structures.md)  \
+  \
 **NOTES:**
 **This tutotial is from Create a Minecraft game with Flutter + Flame ministred by [Aadhi Arun](https://github.com/AirAdmirer), in [Udemy](https://www.udemy.com/) platform. This summary is only for study, all content are intelectual property of the author**  
    \

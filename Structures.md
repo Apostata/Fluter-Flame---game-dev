@@ -1,4 +1,4 @@
 # Structures
 
 
-$ \gets $ [Back](README.md)
+$\leftarrow$ [Back](README.md)

@@ -480,4 +480,4 @@ class BlockComponent extends SpriteComponent {
 }
 ```
 
-$ \gets $ [Back](README.md)
+$\leftarrow$ [Back](README.md)

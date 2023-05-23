@@ -32,3 +32,5 @@ Example:
 ```
 
 **[Sprite component docs](https://docs.flame-engine.org/latest/flame/components.html#spriteanimationcomponent)**
+
+$\Leftarrow$ [Back](README.md) 
