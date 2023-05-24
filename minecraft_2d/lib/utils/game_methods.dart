@@ -32,7 +32,7 @@ class GameMethods {
   }
 
   int get notGroundArea {
-    return (chunkHeight * 0.2).toInt();
+    return (chunkHeight * 0.4).toInt();
   }
 
   int get maxSecondarySoilHeight {
@@ -104,4 +104,22 @@ class GameMethods {
     });
     return chunk;
   }
+
+  List<List<int>> processNoise(List<List<double>> noise) {
+    List<List<int>> processedNoise = List.generate(
+      noise.length,
+      (index) => List.generate(
+        noise[0].length,
+        (idx) => 255,
+      ),
+    );
+
+    for (int i = 0; i < noise.length; i++) {
+      for (int k = 0; k < noise[0].length; k++) {
+        int value = (0x80 + 0x80 * noise[i][k]).floor();
+        processedNoise[i][k] = value;
+      }
+    }
+    return processedNoise;
+  } // tow dimension noise
 }

@@ -4,8 +4,11 @@ import 'package:fast_noise/fast_noise.dart';
 import 'package:minecraft_2d/global/game_reference.dart';
 import 'package:minecraft_2d/resources/biomes.dart';
 import 'package:minecraft_2d/resources/blocks.dart';
+import 'package:minecraft_2d/resources/structures.dart';
 import 'package:minecraft_2d/utils/constants.dart';
 import 'package:minecraft_2d/utils/game_methods.dart';
+
+import '../structures/trrees.dart';
 
 class ChunkGenerationMethods {
   static ChunkGenerationMethods get instance {
@@ -54,6 +57,9 @@ class ChunkGenerationMethods {
     chunk = generatePrimarySoil(chunk, yValues, biome.primarySoil);
     chunk = generateSecondarySoil(chunk, yValues, biome.secondarySoil);
     chunk = generateStoneSoil(chunk);
+    chunk = addStructureToChunk(chunk, yValues, biome.structures);
+    chunk = addOreTochunk(chunk, BlocksEnum.ironOre);
+
     return chunk;
   }
 
@@ -101,6 +107,67 @@ class ChunkGenerationMethods {
     final int x1 = Random().nextInt(chunkWidth ~/ 2);
     final int x2 = x1 + Random().nextInt(chunkWidth ~/ 2);
     chunk[freeArea].fillRange(x1, x2, BlocksEnum.stone);
+
+    return chunk;
+  }
+
+  ///
+  /// Adds the structures to the chunk
+  ///
+  List<List<BlocksEnum?>> addStructureToChunk(
+    List<List<BlocksEnum?>> chunk,
+    List<int> yValues,
+    List<Structure> structures,
+  ) {
+    structures.asMap().forEach((idx, structure) {
+      for (int ocurrence = 1;
+          ocurrence <= structure.strucuresPerChunk;
+          ocurrence++) {
+        final int structureXPosition =
+            Random().nextInt(chunkWidth - structure.maxWidth);
+        final int structureYposition =
+            (yValues[structureXPosition + structure.maxWidth ~/ 2] - 1);
+
+        for (int indexOfRow = 0;
+            indexOfRow < structure.structure.length;
+            indexOfRow++) {
+          List<BlocksEnum?> rowOfBlocks = structure.structure[indexOfRow];
+
+          rowOfBlocks.asMap().forEach((idx, block) {
+            if (chunk[structureYposition - indexOfRow]
+                    [structureXPosition + idx] ==
+                null) {
+              chunk[structureYposition - indexOfRow][structureXPosition + idx] =
+                  block;
+            }
+          });
+        }
+      }
+    });
+
+    return chunk;
+  }
+
+  List<List<BlocksEnum?>> addOreTochunk(
+      List<List<BlocksEnum?>> chunk, BlocksEnum block) {
+    List<List<double>> rawNoise = noise2(
+      chunkHeight,
+      chunkWidth,
+      noiseType: NoiseType.Perlin,
+      frequency: 0.055,
+      seed: Random().nextInt(11000000),
+    );
+
+    List<List<int>> processedNoise =
+        GameMethods.instance.processNoise(rawNoise);
+
+    processedNoise.asMap().forEach((rowidx, rowOfProcessedNoise) {
+      rowOfProcessedNoise.asMap().forEach((idx, value) {
+        if (value < 90 && chunk[rowidx][idx] == BlocksEnum.stone) {
+          chunk[rowidx][idx] = block;
+        }
+      });
+    });
 
     return chunk;
   }

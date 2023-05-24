@@ -464,7 +464,8 @@ the `onGameResize` method makes the environment resposive.
 
 $\rightarrow$ [Player creation and movement](Player.md)  \
 $\rightarrow$ [Terrain creation and biomes](Terrain.md)  \
-$\rightarrow$ [Structures](Structures.md)  \
+$\rightarrow$ [Structures generation](Structures.md)  \
+$\rightarrow$ [Ore generation](Ore.md)  \
   \
 **NOTES:**
 **This tutotial is from Create a Minecraft game with Flutter + Flame ministred by [Aadhi Arun](https://github.com/AirAdmirer), in [Udemy](https://www.udemy.com/) platform. This summary is only for study, all content are intelectual property of the author**  
