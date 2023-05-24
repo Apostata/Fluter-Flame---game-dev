@@ -1,9 +1,9 @@
 import 'dart:math';
-
 import 'package:fast_noise/fast_noise.dart';
 import 'package:minecraft_2d/global/game_reference.dart';
 import 'package:minecraft_2d/resources/biomes.dart';
 import 'package:minecraft_2d/resources/blocks.dart';
+import 'package:minecraft_2d/resources/ores.dart';
 import 'package:minecraft_2d/resources/structures.dart';
 import 'package:minecraft_2d/utils/constants.dart';
 import 'package:minecraft_2d/utils/game_methods.dart';
@@ -58,7 +58,10 @@ class ChunkGenerationMethods {
     chunk = generateSecondarySoil(chunk, yValues, biome.secondarySoil);
     chunk = generateStoneSoil(chunk);
     chunk = addStructureToChunk(chunk, yValues, biome.structures);
-    chunk = addOreTochunk(chunk, BlocksEnum.ironOre);
+    chunk = addOreTochunk(chunk, Ore.ironOre);
+    chunk = addOreTochunk(chunk, Ore.coalOre);
+    chunk = addOreTochunk(chunk, Ore.goldOre);
+    chunk = addOreTochunk(chunk, Ore.diamondOre);
 
     return chunk;
   }
@@ -149,12 +152,12 @@ class ChunkGenerationMethods {
   }
 
   List<List<BlocksEnum?>> addOreTochunk(
-      List<List<BlocksEnum?>> chunk, BlocksEnum block) {
+      List<List<BlocksEnum?>> chunk, Ore ore) {
     List<List<double>> rawNoise = noise2(
       chunkHeight,
       chunkWidth,
       noiseType: NoiseType.Perlin,
-      frequency: 0.055,
+      frequency: 0.1,
       seed: Random().nextInt(11000000),
     );
 
@@ -163,8 +166,8 @@ class ChunkGenerationMethods {
 
     processedNoise.asMap().forEach((rowidx, rowOfProcessedNoise) {
       rowOfProcessedNoise.asMap().forEach((idx, value) {
-        if (value < 90 && chunk[rowidx][idx] == BlocksEnum.stone) {
-          chunk[rowidx][idx] = block;
+        if (value < ore.rarity && chunk[rowidx][idx] == BlocksEnum.stone) {
+          chunk[rowidx][idx] = ore.block;
         }
       });
     });

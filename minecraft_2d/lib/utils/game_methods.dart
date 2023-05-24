@@ -116,7 +116,7 @@ class GameMethods {
 
     for (int i = 0; i < noise.length; i++) {
       for (int k = 0; k < noise[0].length; k++) {
-        int value = (0x80 + 0x80 * noise[i][k]).floor();
+        int value = (0x80 + 0x80 * noise[i][k]).floor(); //grayscale
         processedNoise[i][k] = value;
       }
     }
