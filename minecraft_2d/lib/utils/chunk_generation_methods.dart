@@ -8,8 +8,6 @@ import 'package:minecraft_2d/resources/structures.dart';
 import 'package:minecraft_2d/utils/constants.dart';
 import 'package:minecraft_2d/utils/game_methods.dart';
 
-import '../structures/trrees.dart';
-
 class ChunkGenerationMethods {
   static ChunkGenerationMethods get instance {
     return ChunkGenerationMethods();
