@@ -19,8 +19,8 @@ class GameMethods {
   }
 
   Vector2 get blockSizes {
-    // return Vector2.all(getScreenSize().width / chunkWidth);
-    return Vector2.all(30);
+    return Vector2.all(getScreenSize().width / chunkWidth);
+    // return Vector2.all(30);
   }
 
   Size getScreenSize() {
@@ -49,6 +49,14 @@ class GameMethods {
     final isLeftWorldChunk = playerXposition < 0;
     final posfix = isLeftWorldChunk ? -1 : 0;
     return (playerXposition ~/ chunkWidth) + posfix;
+  }
+
+  double get gravity {
+    return (0.8 * blockSizes.y);
+  }
+
+  double get speed {
+    return (3 * blockSizes.x);
   }
 
   Future<SpriteSheet> getBlockSpriteSheet() async {

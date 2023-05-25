@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flame/game.dart';
 import 'package:get/get.dart';
 import 'package:minecraft_2d/components/block_component.dart';
@@ -10,7 +9,7 @@ import 'package:minecraft_2d/utils/constants.dart';
 import 'package:minecraft_2d/utils/game_methods.dart';
 import 'global/world_data.dart';
 
-class MainGame extends FlameGame {
+class MainGame extends FlameGame with HasCollisionDetection {
   final WorldData worldData;
   final GameReference globalGameReference = Get.put(GameReference());
   Player playerComponent = Player();
