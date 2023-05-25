@@ -206,3 +206,115 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
   }
 }
 ```
+
+### Add jumping movement
+
+Now we need to add the jumping movement to the player.
+firts wee need to update playerData class to add the jumping state `/global/player_data.dart`
+
+```dart
+class PlayerData {
+  
+  ComponentMotionState componentMotionState = ComponentMotionState.idle;
+}
+
+enum ComponentMotionState {
+  walkingLeft,
+  walkingRight,
+  idle,
+  jumping, //jumping state
+}
+```
+
+now at the `widgets/controller_widget.dart` add the state to the button:
+```dart
+class ControllerWidget extends StatelessWidget {
+  const ControllerWidget({super.key});
+ 
+  @override
+  Widget build(BuildContext context) {
+    final playerData =
+        GameReference.instance.gameReference.worldData.playerData;
+
+    return Positioned(
+     ...
+      child: Row(
+        children: [
+          ...
+          ControllerButtonWidget(
+            path: 'center_button.png',
+            onTap: () {
+              playerData.componentMotionState = ComponentMotionState.jumping;
+            },
+          ),
+         ...
+        ],
+      ),
+    );
+  }
+}
+```
+a last thing to do is update the `components/player.dart` to add the jumping logic:
+
+```dart
+class Player extends SpriteAnimationComponent with CollisionCallbacks {
+	...
+	double jumpForce = 0;
+
+	...
+	void moveLogic(ComponentMotionState gameWalkingReference, double dt) {
+    	...
+		if (gameWalkingReference == ComponentMotionState.jumping) {
+			jumpForce = (GameMethods.instance.blockSizes.y * 0.6);
+		}
+  	}
+	...
+}
+```
+
+## Add keyboard support
+To add keyboard controls to the game we need to add a Mixing to the game class, so we can use the keyboard events, at `main_game.dart` add the Mixing `HasKeyboardHandlerComponents` to the game class. and them create a method  `onKeyEvent` to handle the keyboard events.
+
+```dart
+class MainGame extends FlameGame
+    with HasCollisionDetection, HasKeyboardHandlerComponents {
+	...
+	@override
+	KeyEventResult onKeyEvent(
+		RawKeyEvent event,
+		Set<LogicalKeyboardKey> keysPressed,
+	) {
+		super.onKeyEvent(event, keysPressed);
+
+		// move player to right
+		if (keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
+			keysPressed.contains(LogicalKeyboardKey.keyD)) {
+		GameReference.instance.gameReference.worldData.playerData
+			.componentMotionState = ComponentMotionState.walkingRight;
+		}
+
+		// move player to left
+		if (keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
+			keysPressed.contains(LogicalKeyboardKey.keyA)) {
+		GameReference.instance.gameReference.worldData.playerData
+			.componentMotionState = ComponentMotionState.walkingLeft;
+		}
+
+		// jump
+		if (keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
+			keysPressed.contains(LogicalKeyboardKey.keyW) ||
+			keysPressed.contains(LogicalKeyboardKey.space)) {
+		worldData.playerData.componentMotionState = ComponentMotionState.jumping;
+		}
+
+		if (keysPressed.isEmpty) {
+			worldData.playerData.componentMotionState = ComponentMotionState.idle;
+		}
+
+		return KeyEventResult.ignored;
+	}
+}
+
+```
+
+the `keysPressed.isEmpty` if statement will set the player to idle state when no key is pressed, to avoid infinity movement.

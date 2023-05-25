@@ -56,7 +56,7 @@ class GameMethods {
   }
 
   double get speed {
-    return (3 * blockSizes.x);
+    return (5 * blockSizes.x);
   }
 
   Future<SpriteSheet> getBlockSpriteSheet() async {

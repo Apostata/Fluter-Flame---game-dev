@@ -15,6 +15,7 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
   bool isCollidingBottom = false;
   bool isCollidingLeft = false;
   bool isCollidingRight = false;
+  double jumpForce = 0;
 
   late SpriteSheet playerWalkingSpriteSheet;
   late SpriteSheet playerIdleSpriteSheet;
@@ -39,6 +40,7 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
           difBettwenXMoreThen40PercentPlayerWidth) {
         // gravity collision
         isCollidingBottom = true;
+        yVelocity = 0;
       }
 
       if (intersectionPoint.y < playersFootposition) {
@@ -68,7 +70,7 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
       srcSize: _playerDimensions,
     );
     priority = 2;
-    anchor = Anchor.center;
+    anchor = Anchor.bottomCenter;
     size = GameMethods.instance.blockSizes * 1.5;
     animation = playerIdleAnimation;
     position = Vector2(GameMethods.instance.getScreenSize().width * .1,
@@ -105,6 +107,12 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
     moveLogic(gameWalkingReference, dt);
     fallingLogic(dt);
     resetCollinsions();
+
+    if (jumpForce > 0) {
+      position.y -= jumpForce;
+      // jumpForce -= GameMethods.instance.gravity * dt;
+      jumpForce -= GameMethods.instance.blockSizes.y * 0.15;
+    }
   }
 
   @override
@@ -153,6 +161,11 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
     // Idle
     if (gameWalkingReference == ComponentMotionState.idle) {
       animation = playerIdleAnimation;
+    }
+    if (gameWalkingReference == ComponentMotionState.jumping) {
+      // if (isCollidingBottom) {
+      jumpForce = (GameMethods.instance.blockSizes.y * 0.6);
+      // }
     }
   }
 }
