@@ -93,14 +93,6 @@ class GameMethods {
     return spriteSheet.getSprite(0, block.index);
   }
 
-  Future<SpriteSheet> getBreakingSpriteSheet() async {
-    return SpriteSheet(
-      image: await Flame.images
-          .load('sprite_sheets/blocks/block_breaking_sprite_sheet.png'),
-      srcSize: Vector2.all(60),
-    );
-  }
-
   void addWorldChunk(List<List<BlocksEnum?>> chunk, bool isLeftWorldChunk) {
     if (isLeftWorldChunk) {
       final leftWorldChunks =

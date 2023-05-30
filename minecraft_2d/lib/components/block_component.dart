@@ -1,12 +1,15 @@
 import 'dart:async';
-
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
+import 'package:minecraft_2d/components/block_breaking_component.dart';
 import 'package:minecraft_2d/global/game_reference.dart';
 import 'package:minecraft_2d/resources/blocks.dart';
 import 'package:minecraft_2d/utils/game_methods.dart';
 
-class BlockComponent extends SpriteComponent {
+class BlockComponent extends SpriteComponent with Tappable {
   final BlocksEnum block;
   final Vector2 blockIndex;
   final int chunkIdx;
@@ -17,12 +20,37 @@ class BlockComponent extends SpriteComponent {
     required this.chunkIdx,
   });
 
+  late BlockBreakingComponent blockBreakingComponent;
+
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
     size = GameMethods.instance.blockSizes;
     sprite = await GameMethods.instance.getSpriteFromBlock(block);
     add(RectangleHitbox());
+    initializeBlockBreakingComponent();
+  }
+
+  void initializeBlockBreakingComponent() async {
+    blockBreakingComponent = BlockBreakingComponent();
+    blockBreakingComponent.spriteSheet = SpriteSheet(
+      image: await Flame.images
+          .load('sprite_sheets/blocks/block_breaking_sprite_sheet.png'),
+      srcSize: Vector2.all(60),
+    );
+    blockBreakingComponent.size = GameMethods.instance.blockSizes;
+
+    blockBreakingComponent.animation =
+        blockBreakingComponent.spriteSheet.createAnimation(
+      row: 0,
+      stepTime: 0.3,
+      loop: false,
+    );
+    blockBreakingComponent.animation?.onComplete = () {
+      remove(blockBreakingComponent);
+      removeFromParent();
+      GameMethods.instance.replaceBlockAtWorldChunk(null, blockIndex);
+    };
   }
 
   @override
@@ -38,6 +66,7 @@ class BlockComponent extends SpriteComponent {
   @override
   void update(double dt) {
     super.update(dt);
+
     final worldData = GameReference.instance.gameReference.worldData;
     final chunksToRender = worldData.chunksToRender;
     final allreadyRenderedChunks = worldData.allreadyRenderedChunks;
@@ -46,5 +75,36 @@ class BlockComponent extends SpriteComponent {
       removeFromParent();
       allreadyRenderedChunks.remove(chunkIdx);
     }
+  }
+
+  @override
+  bool onTapDown(TapDownInfo info) {
+    super.onTapDown(info);
+
+    if (!blockBreakingComponent.pause) {
+      add(blockBreakingComponent);
+    }
+    blockBreakingComponent.pause = false;
+    return true;
+  }
+
+  @override
+  bool onTapUp(TapUpInfo info) {
+    super.onTapUp(info);
+    blockBreakingComponent.pause = true;
+
+    // remove(blockBreakingComponent);
+
+    //stop breaking animation
+    return true;
+  }
+
+  @override
+  bool onTapCancel() {
+    // remove(blockBreakingComponent);
+    blockBreakingComponent.pause = true;
+
+    //stop breaking animation
+    return true;
   }
 }
