@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:minecraft_2d/components/block_component.dart';
 import 'package:minecraft_2d/components/player_component.dart';
 import 'package:minecraft_2d/global/game_reference.dart';
+import 'package:minecraft_2d/resources/blocks.dart';
 import 'package:minecraft_2d/utils/chunk_generation_methods.dart';
 import 'package:minecraft_2d/utils/constants.dart';
 import 'package:minecraft_2d/utils/game_methods.dart';
@@ -14,7 +15,7 @@ import 'global/player_data.dart';
 import 'global/world_data.dart';
 
 class MainGame extends FlameGame
-    with HasCollisionDetection, HasKeyboardHandlerComponents {
+    with HasCollisionDetection, HasKeyboardHandlerComponents, HasTappables {
   final WorldData worldData;
   final GameReference globalGameReference = Get.put(GameReference());
   Player playerComponent = Player();
@@ -77,6 +78,47 @@ class MainGame extends FlameGame
         }
       });
     });
+  }
+
+  void blockPlacingLogic(Vector2 placingPosition) {
+    final gameMethods = GameMethods.instance;
+
+    final bool isIsPlayerRange =
+        gameMethods.isPlacingPositionInPLayerRange(placingPosition);
+
+    final bool isNullBlock =
+        gameMethods.getBlockAtPosition(placingPosition) == null;
+
+    final bool areThereAdjacentBlocks =
+        gameMethods.areThereAdjacentBlocks(placingPosition);
+
+    final List<int> xAndYRelativeToPlayer =
+        gameMethods.getXAndYTappedpositionRelativeToPlayer(placingPosition);
+    final bool sameBlockAsPlayer =
+        xAndYRelativeToPlayer[0] == 0 && xAndYRelativeToPlayer[1] == 0;
+
+    if (placingPosition.y > 0 &&
+        placingPosition.y < chunkHeight &&
+        isIsPlayerRange &&
+        isNullBlock &&
+        areThereAdjacentBlocks &&
+        !sameBlockAsPlayer) {
+      gameMethods.replaceBlockAtWorldChunk(BlocksEnum.dirt, placingPosition);
+      add(BlockComponent(
+        block: BlocksEnum.dirt,
+        blockIndex: placingPosition,
+        chunkIdx: gameMethods.getChunkIndexFromPositionIndex(placingPosition),
+      ));
+    }
+  }
+
+  @override
+  void onTapDown(int pointerId, TapDownInfo info) {
+    final gameMethods = GameMethods.instance;
+    Vector2 placingPosition =
+        gameMethods.getIndexPositionFromPixels(info.eventPosition.game);
+    blockPlacingLogic(placingPosition);
+    super.onTapDown(pointerId, info);
   }
 
   @override

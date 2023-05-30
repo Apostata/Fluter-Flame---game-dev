@@ -7,6 +7,8 @@ import 'package:minecraft_2d/global/game_reference.dart';
 import 'package:minecraft_2d/resources/blocks.dart';
 import 'package:minecraft_2d/utils/constants.dart';
 
+import '../global/world_data.dart';
+
 class GameMethods {
   static late Size _gameScreenSize;
 
@@ -19,8 +21,8 @@ class GameMethods {
   }
 
   Vector2 get blockSizes {
-    return Vector2.all(getScreenSize().width / chunkWidth);
-    // return Vector2.all(30);
+    // return Vector2.all(getScreenSize().width / chunkWidth);
+    return Vector2.all(30);
   }
 
   Size getScreenSize() {
@@ -45,6 +47,12 @@ class GameMethods {
     return playerPosition.x / blockSizes.x;
   }
 
+  double get playerYposition {
+    final playerPosition =
+        GameReference.instance.gameReference.playerComponent.position;
+    return playerPosition.y / blockSizes.y;
+  }
+
   int get currentChunk {
     final isLeftWorldChunk = playerXposition < 0;
     final posfix = isLeftWorldChunk ? -1 : 0;
@@ -57,6 +65,16 @@ class GameMethods {
 
   double get speed {
     return (5 * blockSizes.x);
+  }
+
+  Vector2 getIndexPositionFromPixels(Vector2 clickposition) {
+    final double x = (clickposition.x / blockSizes.x).floorToDouble();
+    final double y = (clickposition.y / blockSizes.y).floorToDouble();
+    return Vector2(x, y);
+  }
+
+  int getChunkIndexFromPositionIndex(Vector2 positionIndex) {
+    return (positionIndex.x ~/ chunkWidth) + (positionIndex.x < 0 ? -1 : 0);
   }
 
   Future<SpriteSheet> getBlockSpriteSheet() async {
@@ -130,4 +148,71 @@ class GameMethods {
     }
     return processedNoise;
   } // tow dimension noise
+
+  void replaceBlockAtWorldChunk(BlocksEnum? block, Vector2 blockIndex) {
+    //verify if the block is in the left or right world chunk
+    WorldData worldData = GameReference.instance.gameReference.worldData;
+
+    if (blockIndex.x >= 0) {
+      worldData.rightWorldChunks[blockIndex.y.toInt()][blockIndex.x.toInt()] =
+          block;
+    } else {
+      worldData.leftWorldChunks[blockIndex.y.toInt()]
+          [blockIndex.x.toInt().abs() - 1] = block;
+    }
+  }
+
+  List<int> getXAndYTappedpositionRelativeToPlayer(Vector2 tappedPosition) {
+    double pointy0 = playerYposition.floor() - tappedPosition.y;
+    double pointx0 = playerXposition.floor() - tappedPosition.x;
+    int x = pointx0.toInt().abs();
+    int y = (pointy0 - 1).toInt().abs();
+    return [x, y];
+  }
+
+  bool isPlacingPositionInPLayerRange(Vector2 positionIndex) {
+    final relativePositionToPlayer =
+        getXAndYTappedpositionRelativeToPlayer(positionIndex);
+
+    bool xInReach = relativePositionToPlayer[0] <= maxBlockPlacingReach;
+    bool yInReach = relativePositionToPlayer[1] <= maxBlockPlacingReach;
+    if (xInReach && yInReach) {
+      return true;
+    }
+    return false;
+  }
+
+  BlocksEnum? getBlockAtPosition(Vector2 postionIndex) {
+    WorldData worldData = GameReference.instance.gameReference.worldData;
+    if (postionIndex.x <= chunkWidth &&
+        (postionIndex.y <= chunkHeight && postionIndex.y >= 0)) {
+      //postionIndex.y < 0 = fora da tela
+      if (postionIndex.x >= 0) {
+        return worldData.rightWorldChunks[postionIndex.y.toInt()]
+            [postionIndex.x.toInt()];
+      } else {
+        return worldData.leftWorldChunks[postionIndex.y.toInt()]
+            [postionIndex.x.toInt().abs() - 1];
+      }
+    }
+    return BlocksEnum.dirt;
+  }
+
+  bool areThereAdjacentBlocks(Vector2 positionIndex) {
+    List<bool> thereAreAcjacentBlocks = [false, false, false, false];
+    final isThereBlockAbove =
+        getBlockAtPosition(Vector2(positionIndex.x, positionIndex.y - 1));
+    final isThereBlockBelow =
+        getBlockAtPosition(Vector2(positionIndex.x, positionIndex.y + 1));
+    final isThereBlockLeft =
+        getBlockAtPosition(Vector2(positionIndex.x - 1, positionIndex.y));
+    final isThereBlockRight =
+        getBlockAtPosition(Vector2(positionIndex.x + 1, positionIndex.y));
+    thereAreAcjacentBlocks[0] = isThereBlockAbove != null;
+    thereAreAcjacentBlocks[1] = isThereBlockBelow != null;
+    thereAreAcjacentBlocks[2] = isThereBlockRight != null;
+    thereAreAcjacentBlocks[3] = isThereBlockLeft != null;
+
+    return thereAreAcjacentBlocks.contains(true);
+  }
 }

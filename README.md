@@ -468,6 +468,9 @@ $\rightarrow$ [Structures generation](Structures.md)  \
 $\rightarrow$ [Ore generation](Ore.md)  \
 $\rightarrow$ [Gravity and Collision](GravityAndCollision.md)  \
 $\rightarrow$ [keyboard Support](KeyboardSupport.md)  \
+$\rightarrow$ [Block placinng](BlockPlacing.md)  \
+
+
   \
 **NOTES:**
 **This tutotial is from Create a Minecraft game with Flutter + Flame ministred by [Aadhi Arun](https://github.com/AirAdmirer), in [Udemy](https://www.udemy.com/) platform. This summary is only for study, all content are intelectual property of the author**  
