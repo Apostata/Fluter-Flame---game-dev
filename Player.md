@@ -148,4 +148,50 @@ class Player extends SpriteAnimationComponent {
 }
 
 ```
+
+### Adjusting the movment speed accordly to frame rate and reset at every one second(to smooth the movent)
+At players component:
+
+```dart
+class Player extends SpriteAnimationComponent with CollisionCallbacks {
+  double localPlayerSpeed = 0;
+  bool refreshSpeed = false;
+
+  ...
+    @override
+  Future<void> onLoad() async {
+    super.onLoad();
+    ...
+    add(
+      TimerComponent(
+        period: 1,
+        repeat: true,
+        onTick: () {
+          refreshSpeed = true;
+        },
+      ),
+    );
+  }
+
+  ...
+  @override
+  void update(double dt) {
+    super.update(dt);
+    ...
+    ajustFpsPlayerSpeed(dt);
+    resetCollinsions();
+  }
+
+
+  ...
+  void ajustFpsPlayerSpeed(double dt) {
+    if (refreshSpeed) {
+      localPlayerSpeed = (GameMethods.instance.speed * dt);
+      refreshSpeed = false;
+    }
+  }
+}
+```
+
+
 $\leftarrow$ [Back](README.md)

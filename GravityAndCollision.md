@@ -272,5 +272,108 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
 }
 ```
 
+### Updationg Jumping logic and add collision top detenction
+For that let's update the `components/player_component` to add the jumping logic and add the collision top detenction.
+
+```dart
+class Player extends SpriteAnimationComponent with CollisionCallbacks {
+
+  ...
+  bool isCollidingTop = false;
+
+  ...
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    final double playersFootposition = position.y - size.y * 0.3;
+    final double playersHeadposition = position.y - size.y * 0.85;
+
+    for (var intersectionPoint in intersectionPoints) {
+      bool difBettwenXMoreThen40PercentPlayerWidth =
+          (intersectionPoints.first.x - intersectionPoints.last.x).abs() >
+              size.x * 0.4;
+
+      if ((intersectionPoint.y > playersFootposition) &&
+          difBettwenXMoreThen40PercentPlayerWidth) {
+        // bottom collision
+        isCollidingBottom = true;
+        yVelocity = 0;
+      }
+
+      if ((intersectionPoint.y < playersHeadposition) &&
+          difBettwenXMoreThen40PercentPlayerWidth &&
+          jumpForce > 0) {
+        // top collision
+
+        isCollidingTop = true;
+      }
+
+      if (intersectionPoint.y < playersFootposition) {
+        if (intersectionPoint.x > position.x) {
+          //right collision
+          isCollidingRight = true;
+        } else {
+          //left collision
+          isCollidingLeft = true;
+        }
+      }
+    }
+  }
+
+  ...
+  void jumpingLogic() {
+    if (jumpForce > 0) {
+      position.y -= jumpForce;
+      jumpForce -= GameMethods.instance.blockSizes.y * 0.15;
+      if (isCollidingTop) {
+        jumpForce = 0;
+        isCollidingTop = false;
+      }
+    }
+  }
+
+  ...
+  @override
+  void update(double dt) {
+    super.update(dt);
+    final gameWalkingReference = GameReference
+        .instance.gameReference.worldData.playerData.componentMotionState;
+    moveLogic(gameWalkingReference, dt);
+    fallingLogic(dt);
+    jumpingLogic();
+    resetCollinsions();
+  }
+
+  ...
+   void resetCollinsions() {
+    isCollidingBottom = false;
+    isCollidingLeft = false;
+    isCollidingRight = false;
+    isCollidingTop = false;
+  }
+
+  ...
+  void moveLogic(ComponentMotionState gameWalkingReference, double dt) {
+    // Moving Left
+    if (gameWalkingReference == ComponentMotionState.walkingLeft) {
+      move(ComponentMotionState.walkingLeft, dt);
+    }
+    // Moving right
+    if (gameWalkingReference == ComponentMotionState.walkingRight) {
+      move(ComponentMotionState.walkingRight, dt);
+    }
+    // Idle
+    if (gameWalkingReference == ComponentMotionState.idle) {
+      animation = playerIdleAnimation;
+    }
+    //jumping
+    if (gameWalkingReference == ComponentMotionState.jumping &&
+        isCollidingBottom) {
+      jumpForce = (GameMethods.instance.blockSizes.y * 0.8);
+    }
+  }
+
+}
+```
 
 $\leftarrow$ [Back](README.md)

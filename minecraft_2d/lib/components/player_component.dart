@@ -15,7 +15,10 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
   bool isCollidingBottom = false;
   bool isCollidingLeft = false;
   bool isCollidingRight = false;
+  bool isCollidingTop = false;
   double jumpForce = 0;
+  double localPlayerSpeed = 0;
+  bool refreshSpeed = false;
 
   late SpriteSheet playerWalkingSpriteSheet;
   late SpriteSheet playerIdleSpriteSheet;
@@ -30,6 +33,7 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
     final double playersFootposition = position.y - size.y * 0.3;
+    final double playersHeadposition = position.y - size.y * 0.85;
 
     for (var intersectionPoint in intersectionPoints) {
       bool difBettwenXMoreThen40PercentPlayerWidth =
@@ -38,9 +42,17 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
 
       if ((intersectionPoint.y > playersFootposition) &&
           difBettwenXMoreThen40PercentPlayerWidth) {
-        // gravity collision
+        // bottom collision
         isCollidingBottom = true;
         yVelocity = 0;
+      }
+
+      if ((intersectionPoint.y < playersHeadposition) &&
+          difBettwenXMoreThen40PercentPlayerWidth &&
+          jumpForce > 0) {
+        // top collision
+
+        isCollidingTop = true;
       }
 
       if (intersectionPoint.y < playersFootposition) {
@@ -77,13 +89,22 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
         GameMethods.instance.getScreenSize().height * .1);
 
     add(RectangleHitbox());
+    add(
+      TimerComponent(
+        period: 1,
+        repeat: true,
+        onTick: () {
+          refreshSpeed = true;
+        },
+      ),
+    );
   }
 
   void fallingLogic(double dt) {
     final double gravity = GameMethods.instance.gravity;
     final double frameGravity = gravity * dt;
     if (!isCollidingBottom) {
-      if (yVelocity < frameGravity * 5) {
+      if (yVelocity < frameGravity * 10) {
         // to cam follow the player
         position.y += yVelocity;
         yVelocity += frameGravity;
@@ -97,6 +118,7 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
     isCollidingBottom = false;
     isCollidingLeft = false;
     isCollidingRight = false;
+    isCollidingTop = false;
   }
 
   @override
@@ -106,12 +128,15 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
         .instance.gameReference.worldData.playerData.componentMotionState;
     moveLogic(gameWalkingReference, dt);
     fallingLogic(dt);
+    jumpingLogic();
+    ajustFpsPlayerSpeed(dt);
     resetCollinsions();
+  }
 
-    if (jumpForce > 0) {
-      position.y -= jumpForce;
-      // jumpForce -= GameMethods.instance.gravity * dt;
-      jumpForce -= GameMethods.instance.blockSizes.y * 0.15;
+  void ajustFpsPlayerSpeed(double dt) {
+    if (refreshSpeed) {
+      localPlayerSpeed = (GameMethods.instance.speed * dt);
+      refreshSpeed = false;
     }
   }
 
@@ -121,12 +146,22 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
     size = GameMethods.instance.blockSizes * 1.5;
   }
 
+  void jumpingLogic() {
+    if (jumpForce > 0) {
+      position.y -= jumpForce;
+      jumpForce -= GameMethods.instance.blockSizes.y * 0.15;
+      if (isCollidingTop) {
+        jumpForce = 0;
+        isCollidingTop = false;
+      }
+    }
+  }
+
   void move(ComponentMotionState componentMotionState, double dt) {
-    final double speed = (GameMethods.instance.speed * dt);
     switch (componentMotionState) {
       case ComponentMotionState.walkingLeft:
         if (!isCollidingLeft) {
-          position.x -= speed;
+          position.x -= localPlayerSpeed;
           if (_isFacingRight) {
             flipHorizontallyAroundCenter();
             _isFacingRight = false;
@@ -136,7 +171,7 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
         break;
       case ComponentMotionState.walkingRight:
         if (!isCollidingRight) {
-          position.x += speed;
+          position.x += localPlayerSpeed;
           if (!_isFacingRight) {
             flipHorizontallyAroundCenter();
             _isFacingRight = true;
@@ -144,6 +179,7 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
           animation = playerWalkingAnimation;
         }
         break;
+
       default:
         break;
     }
@@ -162,10 +198,10 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
     if (gameWalkingReference == ComponentMotionState.idle) {
       animation = playerIdleAnimation;
     }
-    if (gameWalkingReference == ComponentMotionState.jumping) {
-      // if (isCollidingBottom) {
-      jumpForce = (GameMethods.instance.blockSizes.y * 0.6);
-      // }
+    //jumping
+    if (gameWalkingReference == ComponentMotionState.jumping &&
+        isCollidingBottom) {
+      jumpForce = (GameMethods.instance.blockSizes.y * 0.8);
     }
   }
 }
