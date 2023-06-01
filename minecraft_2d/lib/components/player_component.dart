@@ -4,7 +4,10 @@ import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:minecraft_2d/global/game_reference.dart';
 import 'package:minecraft_2d/global/player_data.dart';
+import 'package:minecraft_2d/resources/blocks.dart';
 import 'package:minecraft_2d/utils/game_methods.dart';
+
+import 'block_component.dart';
 
 class Player extends SpriteAnimationComponent with CollisionCallbacks {
   static bool _isFacingRight = true;
@@ -35,33 +38,36 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
     final double playersFootposition = position.y - size.y * 0.3;
     final double playersHeadposition = position.y - size.y * 0.85;
 
-    for (var intersectionPoint in intersectionPoints) {
-      bool difBettwenXMoreThen40PercentPlayerWidth =
-          (intersectionPoints.first.x - intersectionPoints.last.x).abs() >
-              size.x * 0.4;
+    if (other is BlockComponent &&
+        BlockData.getBlockDataForBlock(other.block).isCollidable) {
+      for (var intersectionPoint in intersectionPoints) {
+        bool difBettwenXMoreThen40PercentPlayerWidth =
+            (intersectionPoints.first.x - intersectionPoints.last.x).abs() >
+                size.x * 0.4;
 
-      if ((intersectionPoint.y > playersFootposition) &&
-          difBettwenXMoreThen40PercentPlayerWidth) {
-        // bottom collision
-        isCollidingBottom = true;
-        yVelocity = 0;
-      }
+        if ((intersectionPoint.y > playersFootposition) &&
+            difBettwenXMoreThen40PercentPlayerWidth) {
+          // bottom collision
+          isCollidingBottom = true;
+          yVelocity = 0;
+        }
 
-      if ((intersectionPoint.y < playersHeadposition) &&
-          difBettwenXMoreThen40PercentPlayerWidth &&
-          jumpForce > 0) {
-        // top collision
+        if ((intersectionPoint.y < playersHeadposition) &&
+            difBettwenXMoreThen40PercentPlayerWidth &&
+            jumpForce > 0) {
+          // top collision
 
-        isCollidingTop = true;
-      }
+          isCollidingTop = true;
+        }
 
-      if (intersectionPoint.y < playersFootposition) {
-        if (intersectionPoint.x > position.x) {
-          //right collision
-          isCollidingRight = true;
-        } else {
-          //left collision
-          isCollidingLeft = true;
+        if (intersectionPoint.y < playersFootposition) {
+          if (intersectionPoint.x > position.x) {
+            //right collision
+            isCollidingRight = true;
+          } else {
+            //left collision
+            isCollidingLeft = true;
+          }
         }
       }
     }

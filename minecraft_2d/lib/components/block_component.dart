@@ -43,7 +43,7 @@ class BlockComponent extends SpriteComponent with Tappable {
     blockBreakingComponent.animation =
         blockBreakingComponent.spriteSheet.createAnimation(
       row: 0,
-      stepTime: 0.3,
+      stepTime: BlockData.getBlockDataForBlock(block).baseMiningSpeed / 6,
       loop: false,
     );
     blockBreakingComponent.animation?.onComplete = () {
