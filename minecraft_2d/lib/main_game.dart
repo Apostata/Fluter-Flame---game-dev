@@ -25,7 +25,7 @@ class MainGame extends FlameGame
   }
 
   @override
-  FutureOr<void> onLoad() {
+  FutureOr<void> onLoad() async {
     super.onLoad();
     camera.followComponent(playerComponent);
     add(playerComponent);

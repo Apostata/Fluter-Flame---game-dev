@@ -74,17 +74,17 @@ class Player extends SpriteAnimationComponent with CollisionCallbacks {
   }
 
   @override
-  Future<void> onLoad() async {
+  void onLoad() {
     super.onLoad();
     playerWalkingSpriteSheet = SpriteSheet(
-      image: await Flame.images
-          .load('sprite_sheets/player/player_walking_sprite_sheet.png'),
+      image: Flame.images
+          .fromCache('sprite_sheets/player/player_walking_sprite_sheet.png'),
       srcSize: _playerDimensions,
     );
 
     playerIdleSpriteSheet = SpriteSheet(
-      image: await Flame.images
-          .load('sprite_sheets/player/player_idle_sprite_sheet.png'),
+      image: Flame.images
+          .fromCache('sprite_sheets/player/player_idle_sprite_sheet.png'),
       srcSize: _playerDimensions,
     );
     priority = 2;

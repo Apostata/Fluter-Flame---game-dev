@@ -26,16 +26,16 @@ class BlockComponent extends SpriteComponent with Tappable {
   FutureOr<void> onLoad() async {
     super.onLoad();
     size = GameMethods.instance.blockSizes;
-    sprite = await GameMethods.instance.getSpriteFromBlock(block);
+    sprite = GameMethods.instance.getSpriteFromBlock(block);
     add(RectangleHitbox());
     initializeBlockBreakingComponent();
   }
 
-  void initializeBlockBreakingComponent() async {
+  void initializeBlockBreakingComponent() {
     blockBreakingComponent = BlockBreakingComponent();
     blockBreakingComponent.spriteSheet = SpriteSheet(
-      image: await Flame.images
-          .load('sprite_sheets/blocks/block_breaking_sprite_sheet.png'),
+      image: Flame.images
+          .fromCache('sprite_sheets/blocks/block_breaking_sprite_sheet.png'),
       srcSize: Vector2.all(60),
     );
     blockBreakingComponent.size = GameMethods.instance.blockSizes;

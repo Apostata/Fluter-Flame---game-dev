@@ -25,7 +25,7 @@ Example:
 **[Sprite component docs](https://docs.flame-engine.org/latest/flame/components.html#spritecomponent)**
 
 ## SpriteAnimationComponent
-this is the base component to render an Sprite animated in the game (used to live things)
+this is the base component to render an Sprite animated in the game (used to live or animated things)
 Example:
 ```dart
 

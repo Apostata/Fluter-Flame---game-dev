@@ -77,9 +77,9 @@ class GameMethods {
     return (positionIndex.x ~/ chunkWidth) + (positionIndex.x < 0 ? -1 : 0);
   }
 
-  Future<SpriteSheet> getBlockSpriteSheet() async {
+  SpriteSheet getBlockSpriteSheet() {
     return SpriteSheet(
-      image: await Flame.images.load(
+      image: Flame.images.fromCache(
         'sprite_sheets/blocks/block_sprite_sheet.png',
       ),
       srcSize: Vector2.all(
@@ -88,8 +88,8 @@ class GameMethods {
     );
   }
 
-  Future<Sprite> getSpriteFromBlock(BlocksEnum block) async {
-    SpriteSheet spriteSheet = await getBlockSpriteSheet();
+  Sprite getSpriteFromBlock(BlocksEnum block) {
+    SpriteSheet spriteSheet = getBlockSpriteSheet();
     return spriteSheet.getSprite(0, block.index);
   }
 
