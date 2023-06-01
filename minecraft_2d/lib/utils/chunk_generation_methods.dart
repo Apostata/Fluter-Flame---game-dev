@@ -56,6 +56,7 @@ class ChunkGenerationMethods {
     chunk = generateSecondarySoil(chunk, yValues, biome.secondarySoil);
     chunk = generateStoneSoil(chunk);
     chunk = addStructureToChunk(chunk, yValues, biome.structures);
+    chunk = generateBedRockSoil(chunk);
     chunk = addOreTochunk(chunk, Ore.ironOre);
     chunk = addOreTochunk(chunk, Ore.coalOre);
     chunk = addOreTochunk(chunk, Ore.goldOre);
@@ -108,6 +109,19 @@ class ChunkGenerationMethods {
     final int x1 = Random().nextInt(chunkWidth ~/ 2);
     final int x2 = x1 + Random().nextInt(chunkWidth ~/ 2);
     chunk[freeArea].fillRange(x1, x2, BlocksEnum.stone);
+
+    return chunk;
+  }
+
+  ///
+  /// Generates bedrock soil
+  ///
+  List<List<BlocksEnum?>> generateBedRockSoil(List<List<BlocksEnum?>> chunk) {
+    chunk.last.replaceRange(
+      0,
+      chunkWidth,
+      List.generate(chunkWidth, (index) => BlocksEnum.bedrock),
+    );
 
     return chunk;
   }

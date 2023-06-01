@@ -81,10 +81,12 @@ class BlockComponent extends SpriteComponent with Tappable {
   bool onTapDown(TapDownInfo info) {
     super.onTapDown(info);
 
-    if (!blockBreakingComponent.pause) {
-      add(blockBreakingComponent);
+    if (BlockData.getBlockDataForBlock(block).breakable) {
+      if (!blockBreakingComponent.pause) {
+        add(blockBreakingComponent);
+      }
+      blockBreakingComponent.pause = false;
     }
-    blockBreakingComponent.pause = false;
     return true;
   }
 

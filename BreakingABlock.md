@@ -171,7 +171,7 @@ final blockDataMap = {
 };
 ```
 
-now we can check if a block belongs to a group of blocks, and get some default properties for it, like isBreakable, isCollidable, baseMiningSpeed. Then update the `initializeBlockBreakingComponent` method at `components/block_component.dart` to check if the block is breakable, isCollidable your mining speed.
+now we can check if a block belongs to a group of blocks, and get some default properties for it, like isBreakable, isCollidable, baseMiningSpeed. Then update the `initializeBlockBreakingComponent` method to add the mining speed and `onTapDown`  to check if the block is breakable at `components/block_component.dart` .
 ```dart
 class BlockComponent extends SpriteComponent with Tappable {
   ...
@@ -196,8 +196,21 @@ class BlockComponent extends SpriteComponent with Tappable {
         GameMethods.instance.replaceBlockAtWorldChunk(null, blockIndex);
       };
   }
+
+  ...
+   @override
+  bool onTapDown(TapDownInfo info) {
+    super.onTapDown(info);
+
+    if (BlockData.getBlockDataForBlock(block).breakable) {
+      if (!blockBreakingComponent.pause) {
+        add(blockBreakingComponent);
+      }
+      blockBreakingComponent.pause = false;
+    }
+    return true;
+  }
 }
 ```
-
 
 $\Leftarrow$ [Back](README.md) 

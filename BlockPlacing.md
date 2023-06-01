@@ -105,7 +105,7 @@ class GameMethods {
  BlocksEnum? getBlockAtPosition(Vector2 postionIndex) {
     WorldData worldData = GameReference.instance.gameReference.worldData;
     if (postionIndex.x > 0 &&
-        worldData.rightWorldChunks.length <= postionIndex.y.toInt() &&
+        worldData.rightWorldChunks.length < postionIndex.y.toInt() &&
         worldData.rightWorldChunks[postionIndex.y.toInt()].length <=
             postionIndex.y.toInt()) {
       return worldData.rightWorldChunks[postionIndex.y.toInt()]

@@ -184,9 +184,9 @@ class GameMethods {
 
   BlocksEnum? getBlockAtPosition(Vector2 postionIndex) {
     WorldData worldData = GameReference.instance.gameReference.worldData;
-    if (postionIndex.x <= chunkWidth &&
-        (postionIndex.y <= chunkHeight && postionIndex.y >= 0)) {
-      //postionIndex.y < 0 = fora da tela
+    bool withinYLimits = postionIndex.y < chunkHeight && postionIndex.y >= 0;
+    bool withinXLimits = postionIndex.x <= chunkWidth;
+    if (withinYLimits && withinXLimits) {
       if (postionIndex.x >= 0) {
         return worldData.rightWorldChunks[postionIndex.y.toInt()]
             [postionIndex.x.toInt()];
@@ -195,6 +195,7 @@ class GameMethods {
             [postionIndex.x.toInt().abs() - 1];
       }
     }
+
     return BlocksEnum.dirt;
   }
 

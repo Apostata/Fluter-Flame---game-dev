@@ -96,7 +96,7 @@ final blockDataMap = {
   ),
   'unbreakable': BlockData(
     isCollidable: true,
-    baseMiningSpeed: 0,
+    baseMiningSpeed: 1,
     breakable: false,
   ),
 };
